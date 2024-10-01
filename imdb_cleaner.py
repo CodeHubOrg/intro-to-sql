@@ -1,6 +1,7 @@
 import os
 import csv
 import glob
+from tqdm import tqdm
 
 # Function to replace '\N' with an empty string
 def replace_null(value):
@@ -9,8 +10,11 @@ def replace_null(value):
 # Create the export directory if it doesn't exist
 os.makedirs('export', exist_ok=True)
 
-# Iterate through all .tsv files in the import directory
-for tsv_file in glob.glob('import/*.tsv'):
+# Get the list of all .tsv files in the import directory
+tsv_files = glob.glob('import/*.tsv')
+
+# Iterate through all .tsv files with a progress bar
+for tsv_file in tqdm(tsv_files, desc="Processing files"):
     # Define the corresponding CSV file path in the export directory
     csv_file = os.path.join('export', os.path.basename(tsv_file).replace('.tsv', '.csv'))
     
