@@ -1,16 +1,28 @@
+import os
 import csv
+import glob
 
 # Function to replace '\N' with an empty string
 def replace_null(value):
     return '' if value == '\\N' else value
 
-# Open the TSV file and the new CSV file with the correct encoding
-with open('name.basics.tsv', 'r', encoding='utf-8') as tsv_file, open('name.basics.csv', 'w', newline='', encoding='utf-8') as csv_file:
-    tsv_reader = csv.reader(tsv_file, delimiter='\t')
-    csv_writer = csv.writer(csv_file)
+# Create the export directory if it doesn't exist
+os.makedirs('export', exist_ok=True)
 
-    # Write each row from the TSV file to the CSV file
-    for row in tsv_reader:
-        # Replace '\N' in each field
-        new_row = [replace_null(field) for field in row]
-        csv_writer.writerow(new_row)
+# Iterate through all .tsv files in the import directory
+for tsv_file in glob.glob('import/*.tsv'):
+    # Define the corresponding CSV file path in the export directory
+    csv_file = os.path.join('export', os.path.basename(tsv_file).replace('.tsv', '.csv'))
+    
+    # Open the TSV file and the new CSV file with the correct encoding
+    with open(tsv_file, 'r', encoding='utf-8') as tsv, open(csv_file, 'w', newline='', encoding='utf-8') as csvf:
+        tsv_reader = csv.reader(tsv, delimiter='\t')
+        csv_writer = csv.writer(csvf)
+
+        # Write each row from the TSV file to the CSV file
+        for row in tsv_reader:
+            # Replace '\N' in each field
+            new_row = [replace_null(field) for field in row]
+            csv_writer.writerow(new_row)
+
+print("Conversion complete!")
