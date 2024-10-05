@@ -2,7 +2,7 @@ import csv
 import sys
 import os
 import glob
-from tqdm import tqdm
+import tqdm
 
 
 def tsv_to_csv():
@@ -20,7 +20,7 @@ def tsv_to_csv():
     tsv_files = glob.glob('import/*.tsv')
 
     # Iterate through all .tsv files with a progress bar
-    for tsv_file in tqdm(tsv_files, desc="Processing files"):
+    for tsv_file in tqdm.tqdm(tsv_files, desc="Processing files"):
         # Define the corresponding CSV file path in the export directory
         csv_file = os.path.join('export', os.path.basename(tsv_file).replace('.tsv', '.csv'))
         
@@ -36,3 +36,8 @@ def tsv_to_csv():
                 csv_writer.writerow(new_row)
 
     print("Conversion complete!")
+
+
+if __name__ == "__main__":
+    tsv_to_csv()
+    
