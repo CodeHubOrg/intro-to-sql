@@ -1,43 +1,61 @@
+"""Clean data from IMDb site"""
+
 import csv
 import sys
-import os
-import glob
-import tqdm
+import ctypes
+from tqdm import tqdm
 
 
-def tsv_to_csv():
-    # Increase the field size limit
-    csv.field_size_limit(sys.maxsize)
+def replace_null(value):
+    """Function to replace '\\N' which IMDb uses for null values with an empty string"""
+    return "" if value == "\\N" else value
 
-    # Function to replace '\N' with an empty string
-    def replace_null(value):
-        return '' if value == '\\N' else value
 
-    # Create the export directory if it doesn't exist
-    os.makedirs('export', exist_ok=True)
+def tsv_to_csv(tsv_file, csv_file):
+    """Take an IMDb TSV file, clean the rows and output a CSV file"""
+    # Calculate maximum size of long in Windows (32-bit?) and assign it to CSV field_size_limit
+    max_long = 2 ** (8 * ctypes.sizeof(ctypes.c_long) - 1) - 1
+    csv.field_size_limit(max_long)
 
-    # Get the list of all .tsv files in the import directory
-    tsv_files = glob.glob('import/*.tsv')
+    # Count rows in file
+    with open(tsv_file, "r", encoding="utf-8") as file:
+        num_rows = sum(1 for row in file)
 
-    # Iterate through all .tsv files with a progress bar
-    for tsv_file in tqdm.tqdm(tsv_files, desc="Processing files"):
-        # Define the corresponding CSV file path in the export directory
-        csv_file = os.path.join('export', os.path.basename(tsv_file).replace('.tsv', '.csv'))
-        
-        # Open the TSV file and the new CSV file with the correct encoding
-        with open(tsv_file, 'r', encoding='utf-8') as tsv, open(csv_file, 'w', newline='', encoding='utf-8') as csvf:
-            tsv_reader = csv.reader(tsv, delimiter='\t')
-            csv_writer = csv.writer(csvf)
+    # Open the TSV file and the new CSV file with the correct encoding
+    with open(tsv_file, "r", encoding="utf-8") as tsv, open(
+        csv_file, "w", newline="", encoding="utf-8"
+    ) as csvf:
+        tsv_reader = csv.reader(tsv, delimiter="\t")
+        csv_writer = csv.writer(csvf)
+        bar_format = (
+            "Progress: {l_bar}{bar} | Completed: {n_fmt}/{total_fmt} "
+            "| Time: [{elapsed}]"
+        )
 
+        with tqdm(
+            total=num_rows,
+            bar_format=bar_format,
+            desc=f"Processing {csv_file}",
+            leave=False,
+        ) as rows_progress:
             # Write each row from the TSV file to the CSV file
-            for row in tsv_reader:
+            for i, row in enumerate(tsv_reader):
+                # Test for integers exceeding `sys.maxsize`
+                for item in row:
+                    try:
+                        value = int(item)
+                        if value > sys.maxsize:
+                            print(f"Large value found: {value}")
+                    except ValueError:
+                        pass
                 # Replace '\N' in each field
                 new_row = [replace_null(field) for field in row]
                 csv_writer.writerow(new_row)
 
-    print("Conversion complete!")
+                if (i + 1) % 100 == 0:
+                    rows_progress.update(100)
 
-
-if __name__ == "__main__":
-    tsv_to_csv()
-    
+        # Ensure the progress bar completes if the total is not a multiple of 100
+        remaining = num_rows % 100
+        if remaining > 0:
+            rows_progress.update(remaining)
