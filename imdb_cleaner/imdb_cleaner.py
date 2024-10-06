@@ -2,6 +2,7 @@ import csv
 import sys
 import os
 import glob
+import ctypes
 import tqdm
 
 
@@ -13,7 +14,10 @@ def replace_null(value):
 def tsv_to_csv():
     # Increase the field size limit to system max size: 9223372036854775807
     # csv.field_size_limit(sys.maxsize)
-    csv.field_size_limit(10**9)
+    
+    # Calculate maximum size of long in Windows (32-bit?) and assign it to CSV field_size_limit
+    max_long = 2 ** (8*ctypes.sizeof(ctypes.c_long) - 1) - 1
+    csv.field_size_limit(max_long)
 
     # Create the export directory if it doesn't exist
     os.makedirs('export', exist_ok=True)
