@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
 """Load IMDb TSV files"""
+
 import os
 import glob
 from tqdm import tqdm
