@@ -56,6 +56,6 @@ def tsv_to_csv(tsv_file, csv_file):
                     rows_progress.update(100)
 
         # Ensure the progress bar completes if the total is not a multiple of 100
-        remaining = len(num_rows) % 100
+        remaining = num_rows % 100
         if remaining > 0:
             rows_progress.update(remaining)
