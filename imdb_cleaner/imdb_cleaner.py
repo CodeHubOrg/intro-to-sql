@@ -41,9 +41,9 @@ def tsv_to_csv(tsv_file, csv_file):
                 # For subsequent chunks, append without writing the header
                 chunk.to_csv(csv_file, index=False, mode="a", header=False)
 
-            rows_progress.update(chunksize)
-
-    # Ensure the progress bar completes if the total is not a multiple of 100
-    remaining = num_rows % chunksize
-    if remaining > 0:
-        rows_progress.update(remaining)
+            if (i + 1) * chunksize <= num_rows:
+                rows_progress.update(chunksize)
+            else:
+                # Ensure the progress bar completes if the total is not a multiple of 100
+                remaining = num_rows % chunksize
+                rows_progress.update(remaining)
