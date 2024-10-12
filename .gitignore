@@ -8,3 +8,7 @@ export/
 import/
 *.csv
 *.tsv
+
+db/
+sql/
+*.sql
