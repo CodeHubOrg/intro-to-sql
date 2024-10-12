@@ -39,17 +39,15 @@ def main():
     to CSV files and write them to the `export` directory
     Option to write to a SQLite database instead."""
 
+    # Create the export directory if it doesn't exist
+    os.makedirs(SETTINGS["output_dir"], exist_ok=True)
     # Check command-line arguments
-    if SETTINGS["output_format"] == "csv":
-        # Create the export directory if it doesn't exist
-        os.makedirs(SETTINGS["output_dir"], exist_ok=True)
-
-    elif SETTINGS["output_format"] == "sqlite":
+    if SETTINGS["output_format"] == "sqlite":
         if not SETTINGS["db_file"]:
             raise ValueError(
                 "SQLite database file path must be provided when output format is 'sqlite'"
             )
-    else:
+    elif SETTINGS["output_format"] == "csv":
         raise ValueError("Invalid output format: ", SETTINGS["output_format"])
 
     pprint(SETTINGS)
@@ -77,10 +75,11 @@ def main():
                 imdb_cleaner.tsv_to_csv(tsv_path=tsv_path, csv_path=csv_path)
             elif SETTINGS["output_format"] == "sqlite":
                 # If output format is SQLite create a SQLite database
+                db_path = os.path.join(SETTINGS["output_dir"], SETTINGS["db_file"])
                 # Define the corresponding table name in the SQLite database
                 db_table = sanitise_table_name(os.path.splitext(tsv_name)[0])
                 imdb_cleaner.tsv_to_sqlite(
-                    tsv_path=tsv_path, db_file=SETTINGS["db_file"], db_table=db_table
+                    tsv_path=tsv_path, db_path=db_path, db_table=db_table
                 )
 
             files_progress.update(1)

@@ -42,7 +42,7 @@ def tsv_to_csv(tsv_path, csv_path):
                 rows_progress.update(len(chunk))
 
 
-def tsv_to_sqlite(tsv_path, db_file, db_table):
+def tsv_to_sqlite(tsv_path, db_path, db_table):
     """Take an IMDb TSV file, clean the rows and output to a SQLite database"""
     with open(tsv_path, "r", encoding="utf-8") as tsv_file:
         # Count rows in file
@@ -54,7 +54,7 @@ def tsv_to_sqlite(tsv_path, db_file, db_table):
             bar_format=bar_format,
             desc=f"Processing {tsv_path}",
         )
-        db_conn = sqlite3.connect(db_file)
+        db_conn = sqlite3.connect(db_path)
 
         with db_conn:
             # Read the TSV file in chunks
