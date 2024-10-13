@@ -1,20 +1,39 @@
-"""Load IMDb TSV files"""
+"""Load IMDb TSV files
+1 Load the TSV files a chunk at time
+2 Clean the chunk
+3 Write the chunk to either a CSV file or SQLite database table
+"""
 
 import os
 import argparse
 import re
-from pprint import pprint
+import sqlite3 as sqlite
+import pandas as pd
 from tqdm import tqdm
-from imdb_cleaner import imdb_cleaner
+from imdb_cleaner import IMDbCleaner
 
 # Default configuration settings
 SETTINGS = {
     "input_dir": "import",
-    "input_names": ["title.crew.tsv", "title.episode.tsv", "title.ratings.tsv"],
+    "input_names": [
+        "name.basics.tsv",
+        "title.basics.tsv",
+        "title.episode.tsv",
+        "title.ratings.tsv",
+        "title.akas.tsv",
+        "title.crew.tsv",
+        "title.principals.tsv",
+    ],
     "output_format": "csv",
     "output_dir": "export",
     "db_file": "imdb.sqlite",
+    "chunksize": 1000,
 }
+
+
+def tsv_load(tsv_file, chunksize):
+    """Load the data from the TSV file in chunks."""
+    return pd.read_csv(tsv_file, sep="\t", chunksize=chunksize)
 
 
 def sanitise_table_name(table_name):
@@ -34,6 +53,49 @@ def sanitise_table_name(table_name):
     return table_name
 
 
+def df_to_csv(data_generator, csv_path):
+    """Take rows from an IMDb TSV file, clean the rows and output a CSV file"""
+
+    with open(csv_path, "w", encoding="utf-8") as csv_file:
+        # Read the TSV file in chunks
+        # Write the data frames to a CSV file
+        for i, chunk in enumerate(data_generator):
+            if i == 0:
+                # For the first chunk, overwrite the file and include a header
+                chunk.to_csv(csv_file, index=False, mode="w")
+            else:
+                # For subsequent chunks, append without writing the header
+                chunk.to_csv(csv_file, index=False, mode="a", header=False)
+
+
+def df_to_sqlite(data_generator, db_path, db_table):
+    """Take rows from an IMDb TSV file, clean the rows and output to a SQLite database"""
+    db_conn = sqlite.connect(db_path)
+
+    with db_conn:
+        # Read the TSV file in chunks
+        # Write the data frames to a SQLite table
+        for i, chunk in enumerate(data_generator):
+            if i == 0:
+                # For the first create or replace the table
+                chunk.to_sql(
+                    db_table,
+                    db_conn,
+                    if_exists="replace",
+                    index=False,
+                    chunksize=SETTINGS["chunksize"],
+                )
+            else:
+                # For subsequent chunks, append without writing the header
+                chunk.to_sql(
+                    db_table,
+                    db_conn,
+                    if_exists="append",
+                    index=False,
+                    chunksize=SETTINGS["chunksize"],
+                )
+
+
 def main():
     """By default, read TSV files from the `import` directory, clean them up, convert them
     to CSV files and write them to the `export` directory
@@ -47,13 +109,8 @@ def main():
             raise ValueError(
                 "SQLite database file path must be provided when output format is 'sqlite'"
             )
-    elif SETTINGS["output_format"] == "csv":
+    elif SETTINGS["output_format"] != "csv":
         raise ValueError("Invalid output format: ", SETTINGS["output_format"])
-
-    pprint(SETTINGS)
-
-    print("Loading files:")
-    pprint(SETTINGS["input_names"], indent=1)
 
     # Format for progress bar
     bar_format = "Progress: {l_bar}{bar} | Completed: {n_fmt} | Time: [{elapsed}]"
@@ -66,20 +123,28 @@ def main():
     ) as files_progress:
         for tsv_name in SETTINGS["input_names"]:
             tsv_path = os.path.join(SETTINGS["input_dir"], tsv_name)
+            # Create a generator to supply the TSV data in chunks as data frames
+            data_generator = tsv_load(tsv_path, SETTINGS["chunksize"])
+            # Create a generator to supply the cleaned data frames
+            cleaner = IMDbCleaner(data_generator, tsv_name)
             if SETTINGS["output_format"] == "csv":
                 # If output format is csv create CSV files
                 # Define the corresponding CSV file path in the export directory
                 csv_path = os.path.join(
                     SETTINGS["output_dir"], tsv_name.replace(".tsv", ".csv")
                 )
-                imdb_cleaner.tsv_to_csv(tsv_path=tsv_path, csv_path=csv_path)
+                # Write the data frames as a CSV file
+                df_to_csv(data_generator=cleaner.clean_data(), csv_path=csv_path)
             elif SETTINGS["output_format"] == "sqlite":
                 # If output format is SQLite create a SQLite database
                 db_path = os.path.join(SETTINGS["output_dir"], SETTINGS["db_file"])
                 # Define the corresponding table name in the SQLite database
                 db_table = sanitise_table_name(os.path.splitext(tsv_name)[0])
-                imdb_cleaner.tsv_to_sqlite(
-                    tsv_path=tsv_path, db_path=db_path, db_table=db_table
+                # Write the data frames to a SQLite table
+                df_to_sqlite(
+                    data_generator=cleaner.clean_data(),
+                    db_path=db_path,
+                    db_table=db_table,
                 )
 
             files_progress.update(1)
