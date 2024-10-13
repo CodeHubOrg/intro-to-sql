@@ -10,24 +10,24 @@ import re
 import sqlite3 as sqlite
 import pandas as pd
 from tqdm import tqdm
-from imdb_cleaner import IMDbCleaner
+from imdb_cleaner import IMDbCleaner, TitleBasicsCleaner
 
 # Default configuration settings
 SETTINGS = {
     "input_dir": "import",
-    "input_names": [
-        "name.basics.tsv",
-        "title.basics.tsv",
-        "title.episode.tsv",
-        "title.ratings.tsv",
-        "title.akas.tsv",
-        "title.crew.tsv",
-        "title.principals.tsv",
-    ],
     "output_format": "csv",
     "output_dir": "export",
     "db_file": "imdb.sqlite",
-    "chunksize": 1000,
+    "chunksize": 10000,
+}
+CLEANER_CLASSES = {
+    "name.basics.tsv": IMDbCleaner,
+    "title.basics.tsv": TitleBasicsCleaner,
+    "title.crew.tsv": IMDbCleaner,
+    "title.episode.tsv": IMDbCleaner,
+    "title.principals.tsv": IMDbCleaner,
+    "title.ratings.tsv": IMDbCleaner,
+    # "title.akas.tsv": IMDbCleaner,
 }
 
 
@@ -56,11 +56,12 @@ def sanitise_table_name(table_name):
 def df_to_csv(data_generator, csv_path):
     """Take rows from an IMDb TSV file, clean the rows and output a CSV file"""
 
-    with open(csv_path, "w", encoding="utf-8") as csv_file:
+    with open(csv_path, "w", encoding="utf-8", newline="") as csv_file:
         # Read the TSV file in chunks
-        # Write the data frames to a CSV file
-        for i, chunk in enumerate(data_generator):
-            if i == 0:
+        # Write the data frames to a CSV file using a writer
+        for chunk in data_generator:
+            # csv_file.tell() returns the current position in the file of the `csv_file` pointer
+            if csv_file.tell() == 0:
                 # For the first chunk, overwrite the file and include a header
                 chunk.to_csv(csv_file, index=False, mode="w")
             else:
@@ -117,16 +118,17 @@ def main():
 
     # Iterate through all TSV files with a progress bar
     with tqdm(
-        total=len(SETTINGS["input_names"]),
+        total=len(CLEANER_CLASSES),
         bar_format=bar_format,
         desc="Processing files",
     ) as files_progress:
-        for tsv_name in SETTINGS["input_names"]:
+        for tsv_name, cleaner_class in CLEANER_CLASSES.items():
             tsv_path = os.path.join(SETTINGS["input_dir"], tsv_name)
             # Create a generator to supply the TSV data in chunks as data frames
             data_generator = tsv_load(tsv_path, SETTINGS["chunksize"])
-            # Create a generator to supply the cleaned data frames
-            cleaner = IMDbCleaner(data_generator, tsv_name)
+            # Create a generator to supply the cleaned data frames from a class based on the file
+            # names mapped in CLEANER_CLASSES
+            cleaner = cleaner_class(data_generator, tsv_name)
             if SETTINGS["output_format"] == "csv":
                 # If output format is csv create CSV files
                 # Define the corresponding CSV file path in the export directory

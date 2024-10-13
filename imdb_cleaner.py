@@ -10,9 +10,10 @@ class IMDbCleaner:
         self.data_generator = data_generator
         self.tsv_name = tsv_name
 
-    def replace_null(self, dataframe):
+    def replace_null(self, df):
         """Function to replace '\\N' which IMDb uses for null values with an empty string"""
-        dataframe.replace("\\N", "", inplace=True)
+        clean_df = df.replace("\\N", "")
+        return clean_df
 
     def clean_data(self):
         """Clean the data."""
@@ -25,12 +26,38 @@ class IMDbCleaner:
         # Pull a chunk of data from the supplied data generator
         for df in self.data_generator:
             # Clean the data and then yield it to be written
-            self.clean_chunk(df)
-            yield df
+            clean_df = self.clean_chunk(df)
+            yield clean_df
             # Update the progress bar with the number of rows written
             rows_progress.update(len(df))
 
     def clean_chunk(self, df):
         """Clean a single chunk of data."""
-        self.replace_null(dataframe=df)
+        df = self.replace_null(df)
         return df
+
+
+class TitleBasicsCleaner(IMDbCleaner):
+    """Title Basics cleaner for IMDb data that filters out adult titles"""
+
+    DESIRED_COLUMNS = [
+        "tconst",
+        "titleType",
+        "primaryTitle",
+        "originalTitle",
+        "startYear",
+        "endYear",
+        "runtimeMinutes",
+        "genres",
+    ]
+
+    def clean_chunk(self, df):
+        """Clean a single chunk of data."""
+        # TODO work out which of these reassignments are needed if this finally works
+        # Filter out rows where 'isAdult' and keep only desired columns
+        filtered_df = df.loc[df["isAdult"] == 0, self.DESIRED_COLUMNS]
+        # Call the base class's replace_null method
+        cleaned_df = self.replace_null(filtered_df)
+
+        return cleaned_df
+
