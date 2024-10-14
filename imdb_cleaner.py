@@ -61,3 +61,15 @@ class TitleBasicsCleaner(IMDbCleaner):
 
         return cleaned_df
 
+
+class TitleCrewCleaner(IMDbCleaner):
+    """Title crew cleaner for IMDb data that filters out rows with no writer or director"""
+
+    def clean_chunk(self, df):
+        """Clean a single chunk of data."""
+        # Filter out rows where both 'directors' and 'writers' are '\N'
+        filtered_df = df.loc[~((df["directors"] == "\\N") & (df["writers"] == "\\N"))]
+        # Call the base class's replace_null method
+        cleaned_df = self.replace_null(filtered_df)
+
+        return cleaned_df

@@ -10,7 +10,7 @@ import re
 import sqlite3 as sqlite
 import pandas as pd
 from tqdm import tqdm
-from imdb_cleaner import IMDbCleaner, TitleBasicsCleaner
+from imdb_cleaner import IMDbCleaner, TitleBasicsCleaner, TitleCrewCleaner
 
 # Default configuration settings
 SETTINGS = {
@@ -23,7 +23,7 @@ SETTINGS = {
 CLEANER_CLASSES = {
     "name.basics.tsv": IMDbCleaner,
     "title.basics.tsv": TitleBasicsCleaner,
-    "title.crew.tsv": IMDbCleaner,
+    "title.crew.tsv": TitleCrewCleaner,
     "title.episode.tsv": IMDbCleaner,
     "title.principals.tsv": IMDbCleaner,
     "title.ratings.tsv": IMDbCleaner,
