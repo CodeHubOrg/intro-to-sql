@@ -10,7 +10,12 @@ import re
 import sqlite3 as sqlite
 import pandas as pd
 from tqdm import tqdm
-from imdb_cleaner import IMDbCleaner, TitleBasicsCleaner, TitleCrewCleaner
+from imdb_cleaner import (
+    IMDbCleaner,
+    TitleBasicsCleaner,
+    TitleCrewCleaner,
+    TitleEpisodeCleaner,
+)
 
 # Default configuration settings
 SETTINGS = {
@@ -24,7 +29,7 @@ CLEANER_CLASSES = {
     "name.basics.tsv": IMDbCleaner,
     "title.basics.tsv": TitleBasicsCleaner,
     "title.crew.tsv": TitleCrewCleaner,
-    "title.episode.tsv": IMDbCleaner,
+    "title.episode.tsv": TitleEpisodeCleaner,
     "title.principals.tsv": IMDbCleaner,
     "title.ratings.tsv": IMDbCleaner,
     # "title.akas.tsv": IMDbCleaner,
@@ -141,7 +146,7 @@ def main():
                 # If output format is SQLite create a SQLite database
                 db_path = os.path.join(SETTINGS["output_dir"], SETTINGS["db_file"])
                 # Define the corresponding table name in the SQLite database
-                db_table = sanitise_table_name(os.path.splitext(tsv_name)[0])
+                db_table = "load_" + sanitise_table_name(os.path.splitext(tsv_name)[0])
                 # Write the data frames to a SQLite table
                 df_to_sqlite(
                     data_generator=cleaner.clean_data(),

@@ -12,7 +12,7 @@ class IMDbCleaner:
 
     def replace_null(self, df):
         """Function to replace '\\N' which IMDb uses for null values with an empty string"""
-        clean_df = df.replace("\\N", "")
+        clean_df = df.replace("\\N", None)
         return clean_df
 
     def clean_data(self):
@@ -40,6 +40,20 @@ class IMDbCleaner:
 class TitleBasicsCleaner(IMDbCleaner):
     """Title Basics cleaner for IMDb data that filters out adult titles"""
 
+    # title.basics.tsv.gz columns from https://developer.imdb.com/non-commercial-datasets/
+    # * tconst (string) - alphanumeric unique identifier of the title
+    # * titleType (string) – the type/format of the title (e.g. movie, short, tvseries, tvepisode,
+    #   video, etc)
+    # * primaryTitle (string) – the more popular title / the title used by the filmmakers on
+    #   promotional materials at the point of release
+    # * originalTitle (string) - original title, in the original language
+    # * isAdult (boolean) - 0: non-adult title; 1: adult title
+    # * startYear (YYYY) – represents the release year of a title. In the case of TV Series, it is
+    #   the series start year
+    # * endYear (YYYY) – TV Series end year. '\N' for all other title types
+    # * runtimeMinutes – primary runtime of the title, in minutes
+    # * genres (string array) – includes up to three genres associated with the title
+
     DESIRED_COLUMNS = [
         "tconst",
         "titleType",
@@ -65,10 +79,36 @@ class TitleBasicsCleaner(IMDbCleaner):
 class TitleCrewCleaner(IMDbCleaner):
     """Title crew cleaner for IMDb data that filters out rows with no writer or director"""
 
+    # title.crew.tsv.gz columns from https://developer.imdb.com/non-commercial-datasets/
+    # tconst (string) - alphanumeric unique identifier of the title
+    # directors (array of nconsts) - director(s) of the given title
+    # writers (array of nconsts) – writer(s) of the given title
+
     def clean_chunk(self, df):
-        """Clean a single chunk of data."""
-        # Filter out rows where both 'directors' and 'writers' are '\N'
+        """Clean a single chunk of data. Filter out rows where both 'directors' and 'writers' are
+        '\\N'"""
         filtered_df = df.loc[~((df["directors"] == "\\N") & (df["writers"] == "\\N"))]
+        # Call the base class's replace_null method
+        cleaned_df = self.replace_null(filtered_df)
+
+        return cleaned_df
+
+
+class TitleEpisodeCleaner(IMDbCleaner):
+    """Title episode cleaner for IMDb data that filters out rows with no episode or season number"""
+
+    # title.episode.tsv.gz columns from https://developer.imdb.com/non-commercial-datasets/
+    # tconst (string) - alphanumeric identifier of episode
+    # parentTconst (string) - alphanumeric identifier of the parent TV Series
+    # seasonNumber (integer) – season number the episode belongs to
+    # episodeNumber (integer) – episode number of the tconst in the TV series
+
+    def clean_chunk(self, df):
+        """Clean a single chunk of data. Filter out rows where both 'seasonNumber' and
+        'episodeNumber' are '\\N'"""
+        filtered_df = df.loc[
+            ~((df["seasonNumber"] == "\\N") & (df["episodeNumber"] == "\\N"))
+        ]
         # Call the base class's replace_null method
         cleaned_df = self.replace_null(filtered_df)
 
