@@ -145,7 +145,7 @@ def main():
             elif SETTINGS["output_format"] == "sqlite":
                 # If output format is SQLite create a SQLite database
                 db_path = os.path.join(SETTINGS["output_dir"], SETTINGS["db_file"])
-                # Define the ccsvorresponding table name in the SQLite database
+                # Define the corresponding table name in the SQLite database
                 db_table = "load_" + sanitise_table_name(os.path.splitext(tsv_name)[0])
                 # Write the data frames to a SQLite table
                 df_to_sqlite(
@@ -160,6 +160,18 @@ def main():
 
 
 if __name__ == "__main__":
+    # TODO: review from @sfkleach
+    # The bottom of load_imdb.py has a if __name__ == "__main__": clause. A really good rule is to
+    # never declare any variables in this section. This rule works to prevent awkward clashes and as
+    # a rule-of-thumb that it has got too big.
+    # The arguments are unpacked from a namespace into the global variable SETTINGS, which is a
+    # dict. My suggestion is firstly, how about make SETTINGS a namespace and then do
+    # `SETTINGS = parser.parse_args()`?
+
+    # And I would be tempted to do away with a global SETTINGS by adding a class LoadIMDB: and
+    # stuffing all the methods into it. And then the global SETTINGS becomes an ordinary instance
+    # variable.
+
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
         description="Process TSV files from IMDb and save to CSV or SQLite."
