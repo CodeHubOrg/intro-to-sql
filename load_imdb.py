@@ -160,6 +160,18 @@ def main():
 
 
 if __name__ == "__main__":
+    # TODO: review from @sfkleach
+    # The bottom of load_imdb.py has a if __name__ == "__main__": clause. A really good rule is to
+    # never declare any variables in this section. This rule works to prevent awkward clashes and as
+    # a rule-of-thumb that it has got too big.
+    # The arguments are unpacked from a namespace into the global variable SETTINGS, which is a
+    # dict. My suggestion is firstly, how about make SETTINGS a namespace and then do
+    # `SETTINGS = parser.parse_args()`?
+
+    # And I would be tempted to do away with a global SETTINGS by adding a class LoadIMDB: and
+    # stuffing all the methods into it. And then the global SETTINGS becomes an ordinary instance
+    # variable.
+
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
         description="Process TSV files from IMDb and save to CSV or SQLite."
