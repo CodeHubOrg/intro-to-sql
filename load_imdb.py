@@ -145,7 +145,7 @@ def main():
             elif SETTINGS["output_format"] == "sqlite":
                 # If output format is SQLite create a SQLite database
                 db_path = os.path.join(SETTINGS["output_dir"], SETTINGS["db_file"])
-                # Define the corresponding table name in the SQLite database
+                # Define the ccsvorresponding table name in the SQLite database
                 db_table = "load_" + sanitise_table_name(os.path.splitext(tsv_name)[0])
                 # Write the data frames to a SQLite table
                 df_to_sqlite(
