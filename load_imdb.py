@@ -1,7 +1,8 @@
 """Load IMDb TSV files
-1 Load the TSV files a chunk at time
-2 Clean the chunk
-3 Write the chunk to either a CSV file or SQLite database table
+1 Download the files is they're not present
+2 Load the TSV files a chunk at time
+3 Clean the chunk
+4 Write the chunk to either a CSV file or SQLite database table
 """
 
 import os
@@ -25,6 +26,7 @@ SETTINGS = {
     "db_file": "imdb.sqlite",
     "chunksize": 10000,
 }
+
 CLEANER_CLASSES = {
     "name.basics.tsv": IMDbCleaner,
     "title.basics.tsv": TitleBasicsCleaner,
