@@ -8,9 +8,6 @@ from tqdm import tqdm
 
 # Default configuration settings
 SETTINGS = {
-    "data_location": "https://datasets.imdbws.com/",
-    "download_dir": "downloads",
-    "block_size": 1024,
     "data_files": {
         # "name.basics.tsv.gz",
         # "title.akas.tsv.gz",
@@ -23,54 +20,70 @@ SETTINGS = {
 }
 
 
-def download_data_file(
-    data_file, data_location, download_dir="downloads", block_size=1024
-):
-    """Download non-commercial data sets from IMDb."""
-    url = data_location + data_file
-    response = requests.get(url)
+class IMDbDownloader:
+    """Base downloader for IMDb data sets"""
 
-    # Streaming, so we can iterate over the response.
-    response = requests.get(url, stream=True)
+    def __init__(self, download_dir, zip_file, chunk_size=1024):
+        self.download_dir = download_dir
+        self.zip_file = zip_file
+        self.unzip_file = os.path.splitext(zip_file)[0]
+        self.chunk_size = chunk_size
 
-    # Format for tqdm progress bar
-    bar_format = "Progress: {l_bar}{bar} | Completed: {n_fmt} | Time: [{elapsed}]"
+    def download_file(self, data_location):
+        """Download non-commercial data sets from IMDb."""
+        url = data_location + self.zip_file
 
-    # Sizes in bytes.
-    total_size = int(response.headers.get("content-length", 0))
+        # Streaming, so we can iterate over the response.
+        response = requests.get(url, stream=True, timeout=60)
+        total_size = int(response.headers.get("content-length", 0))
 
-    # Create the download directory if it doesn't exist
-    os.makedirs(download_dir, exist_ok=True)
-    download_path = os.path.join(download_dir, data_file)
+        # Format for tqdm progress bar
+        bar_format = "Progress: {l_bar}{bar} | Completed: {n_fmt} | Time: [{elapsed}]"
 
-    with tqdm(
-        total=total_size,
-        unit="B",
-        unit_scale=True,
-        desc=data_file,
-        bar_format=bar_format,
-    ) as progress_bar:
-        with open(download_path, "wb") as f_out:
-            for data in response.iter_content(block_size):
-                progress_bar.update(len(data))
-                f_out.write(data)
+        # Create the download directory if it doesn't exist
+        os.makedirs(self.download_dir, exist_ok=True)
+        download_path = os.path.join(self.download_dir, self.zip_file)
 
-    if total_size != 0 and progress_bar.n != total_size:
-        raise RuntimeError("Could not download file")
+        with tqdm.wrapattr(
+            open(download_path, "wb"),
+            "write",
+            total=total_size,
+            unit="B",
+            unit_scale=True,
+            desc=f"Downloading {self.zip_file}",
+            bar_format=bar_format,
+            leave=False,
+        ) as f_out:
+            for chunk in response.iter_content(chunk_size=self.chunk_size):
+                f_out.write(chunk)
 
+    def decompress_file(self, output_dir):
+        """Decompress the gzipped datasets"""
 
-def decompress_file(file_name, input_dir, output_dir):
-    """Decompress the gzipped datasets"""
+        # Create the import directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+        input_file = os.path.join(self.download_dir, self.zip_file)
 
-    # Create the import directory if it doesn't exist
-    os.makedirs(output_dir, exist_ok=True)
-    input_file = os.path.join(input_dir, file_name)
-    # Remove the file extension for the uncompressed output file
-    output_file = os.path.join(output_dir, os.path.splitext(file_name)[0])
+        # Remove the file extension for the uncompressed output file
+        output_file = os.path.join(output_dir, self.unzip_file)
 
-    with gzip.open(input_file, "rb") as f_in:
-        with open(output_file, "wb") as f_out:
-            f_out.write(f_in.read())
+        # Format for tqdm progress bar
+        bar_format = "Completed: {n_fmt} | Time: [{elapsed}]"
+        with gzip.open(input_file, "rb") as f_in:
+            with open(output_file, "wb") as f_out:
+                p_bar = tqdm(
+                    unit="B",
+                    unit_scale=True,
+                    desc=f"Decompressing {self.zip_file}",
+                    bar_format=bar_format,
+                    leave=False,
+                )
+                while True:
+                    block = f_in.read(self.chunk_size)
+                    if not block:
+                        break
+                    f_out.write(block)
+                    p_bar.update(len(block))
 
 
 if __name__ == "__main__":
@@ -98,7 +111,7 @@ if __name__ == "__main__":
         help="Directory to save unzipped dataset files",
     )
     parser.add_argument(
-        "--block_size",
+        "--chunk_size",
         type=int,
         default=1024,
         help="Block size when downloading files",
@@ -111,30 +124,14 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    SETTINGS["data_location"] = args.data_location
-    SETTINGS["download_dir"] = args.download_dir
-    SETTINGS["output_dir"] = args.output_dir
-    SETTINGS["block_size"] = args.block_size
+    for file in tqdm(
+        SETTINGS["data_files"],
+        total=len(SETTINGS["data_files"]),
+        desc="Processing IMDb dataset files",
+    ):
+        imdb_downloader = IMDbDownloader(args.download_dir, file)
+        if not args.no_download:
+            imdb_downloader.download_file(data_location=args.data_location)
 
-    if not args.no_download:
-
-        for file in tqdm(
-            SETTINGS["data_files"],
-            total=len(SETTINGS["data_files"]),
-            desc=f"Downloading files from {SETTINGS["data_location"]}",
-        ):
-            download_data_file(
-                data_file=file,
-                data_location=SETTINGS["data_location"],
-                download_dir=SETTINGS["download_dir"],
-                block_size=SETTINGS["block_size"],
-            )
-
-    if not args.no_decompress:
-
-        for file in tqdm(
-            SETTINGS["data_files"],
-            total=len(SETTINGS["data_files"]),
-            desc=f"Decompressing files in {SETTINGS["download_dir"]}",
-        ):
-            decompress_file(file, SETTINGS["download_dir"], SETTINGS["output_dir"])
+        if not args.no_decompress:
+            imdb_downloader.decompress_file(args.output_dir)
