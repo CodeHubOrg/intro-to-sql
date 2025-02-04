@@ -1,5 +1,5 @@
 """Load IMDb TSV files
-1 Download the files is they're not present
+1 Download the files if they're not present
 2 Load the TSV files a chunk at time
 3 Clean the chunk
 4 Write the chunk to either a CSV file or SQLite database table
