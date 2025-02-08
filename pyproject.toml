@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "imdb-cleaner"
+name = "intro-to-sql"
 version = "0.1.0"
 description = ""
 authors = ["Stiff Neck Jim <22213990+stiffneckjim@users.noreply.github.com>"]
