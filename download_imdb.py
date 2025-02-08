@@ -24,13 +24,24 @@ class IMDbDownloader:
     """Base downloader for IMDb data sets"""
 
     def __init__(self, download_dir, zip_file, chunk_size=1024):
+        """Initialise IMDbDownloader object
+
+        Args:
+            download_dir (string): Directory to download data file to
+            zip_file (string): Name of compressed data file to download
+            chunk_size (int, optional): Chunk size when downloading and decompressing data files. Defaults to 1024.
+        """
         self.download_dir = download_dir
         self.zip_file = zip_file
         self.unzip_file = os.path.splitext(zip_file)[0]
         self.chunk_size = chunk_size
 
     def download_file(self, data_location):
-        """Download non-commercial data sets from IMDb."""
+        """Download non-commercial data sets from IMDb.
+
+        Args:
+            data_location (string): URL where files are located to download
+        """
         url = data_location + self.zip_file
 
         # Streaming, so we can iterate over the response.
@@ -58,7 +69,11 @@ class IMDbDownloader:
                 f_out.write(chunk)
 
     def decompress_file(self, output_dir):
-        """Decompress the gzipped datasets"""
+        """Decompress the gzipped datasets
+
+        Args:
+            output_dir (string): Directory to write decompressed files to
+        """
 
         # Create the import directory if it doesn't exist
         os.makedirs(output_dir, exist_ok=True)
@@ -108,13 +123,13 @@ if __name__ == "__main__":
         "--output_dir",
         type=str,
         default="import",
-        help="Directory to save unzipped dataset files",
+        help="Directory to save unzipped dataset files (default:import)",
     )
     parser.add_argument(
         "--chunk_size",
         type=int,
-        default=1024,
-        help="Block size when downloading files",
+        default=1048576,
+        help="Block size in bytes when downloading files (default: 1048576)",
     )
     parser.add_argument(
         "--no_download", action="store_true", help="Don't download dataset files"
