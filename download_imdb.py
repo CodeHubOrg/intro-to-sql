@@ -105,7 +105,9 @@ if __name__ == "__main__":
 
     # Parse command-line arguments
     parser = argparse.ArgumentParser(
-        description="Download non-commercial data sets from IMDb."
+        prog="download_imdb",
+        description="Download non-commercial data sets from IMDb.",
+        epilog="You can process the files with load_imdb.",
     )
     parser.add_argument(
         "--data_location",
