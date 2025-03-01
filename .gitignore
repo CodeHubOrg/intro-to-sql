@@ -4,6 +4,7 @@ __pycache__/
 .vscode/
 *.code-workspace
 
+downloads/
 export/
 import/
 *.csv

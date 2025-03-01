@@ -1,14 +1,16 @@
 [tool.poetry]
-name = "imdb-cleaner"
+name = "intro-to-sql"
 version = "0.1.0"
 description = ""
 authors = ["Stiff Neck Jim <22213990+stiffneckjim@users.noreply.github.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
 tqdm = "^4.66.5"
 pandas = "^2.2.3"
+requests = "^2.32.3"
 
 
 [tool.poetry.group.dev.dependencies]
