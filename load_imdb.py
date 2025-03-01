@@ -66,6 +66,11 @@ class IMDbLoader:
     def df_to_sqlite(self, data_generator, db_path, db_table):
         """Take rows from an IMDb TSV file, clean the rows and output to a SQLite database"""
         db_conn = sqlite.connect(db_path)
+        db_cursor = db_conn.cursor()
+        # Store journal in memory, temp store in memory, and turn off synchronous writes
+        db_cursor.execute("PRAGMA journal_mode = MEMORY")
+        db_cursor.execute("PRAGMA temp_store = MEMORY")
+        db_cursor.execute("PRAGMA synchronous = OFF")
 
         with db_conn:
             # Read the TSV file in chunks
