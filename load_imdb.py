@@ -28,7 +28,9 @@ class IMDbLoader:
 
     def tsv_load(self):
         """Load the data from the TSV file in chunks."""
-        return pd.read_csv(self.tsv_file, sep="\t", chunksize=self.chunk_size)
+        return pd.read_csv(
+            self.tsv_file, sep="\t", chunksize=self.chunk_size, low_memory=False
+        )
 
     def sanitise_table_name(self, table_name):
         """Converts a string to a valid table name."""
@@ -101,7 +103,6 @@ def main(input_dir, output_dir, output_format, db_file, chunk_size):
         "title.episode.tsv": TitleEpisodeCleaner,
         "title.principals.tsv": IMDbCleaner,
         "title.ratings.tsv": IMDbCleaner,
-        "title.akas.tsv": IMDbCleaner,
     }
 
     # Create the export directory if it doesn't exist
