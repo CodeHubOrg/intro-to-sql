@@ -67,7 +67,6 @@ class TitleBasicsCleaner(IMDbCleaner):
 
     def clean_chunk(self, df):
         """Clean a single chunk of data."""
-        # TODO work out which of these reassignments are needed if this finally works
         # Filter out rows where 'isAdult' and keep only desired columns
         filtered_df = df.loc[df["isAdult"] == 0, self.DESIRED_COLUMNS]
         # Call the base class's replace_null method
