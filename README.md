@@ -14,7 +14,6 @@ You can download the TSV from [IMDb Non-Commercial Datasets](https://developer.i
 ### Command-line arguments
 
 ``` shell
-❯ poetry run python load_imdb.py -h
 usage: load_imdb [-h] [-f {csv,sqlite}] [-d DB_FILE] [-o OUTPUT_DIR] [-c CHUNK_SIZE] input_dir
 
 Process TSV files from IMDb and save to CSV or SQLite.
