@@ -9,12 +9,12 @@ from tqdm import tqdm
 # Default configuration settings
 SETTINGS = {
     "data_files": {
-        # "name.basics.tsv.gz",
-        # "title.akas.tsv.gz",
-        # "title.basics.tsv.gz",
+        "name.basics.tsv.gz",
+        "title.akas.tsv.gz",
+        "title.basics.tsv.gz",
         "title.crew.tsv.gz",
         "title.episode.tsv.gz",
-        # "title.principals.tsv.gz",
+        "title.principals.tsv.gz",
         "title.ratings.tsv.gz",
     },
 }
@@ -29,7 +29,9 @@ class IMDbDownloader:
         Args:
             download_dir (string): Directory to download data file to
             zip_file (string): Name of compressed data file to download
-            chunk_size (int, optional): Chunk size when downloading and decompressing data files. Defaults to 1024.
+            chunk_size (int, optional): Chunk size when downloading and decompressing data files.
+
+            Defaults to 1024.
         """
         self.download_dir = download_dir
         self.zip_file = zip_file
