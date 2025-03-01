@@ -3,6 +3,8 @@ __pycache__/
 
 .vscode/
 *.code-workspace
+.cspell
+cspell.json
 
 downloads/
 export/
