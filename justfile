@@ -16,7 +16,6 @@ fetch:
     make import/name.basics.tsv \
         import/title.basics.tsv \
         import/title.crew.tsv \
-        import/title.episode.tsv \
         import/title.principals.tsv \
         import/title.ratings.tsv
 

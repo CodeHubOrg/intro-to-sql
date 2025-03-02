@@ -15,22 +15,18 @@ from imdb_cleaner import (
     IMDbCleaner,
     TitleBasicsCleaner,
     TitleCrewCleaner,
-    TitleEpisodeCleaner,
 )
 
 
 class IMDbLoader:
     """Load the IMDb data sets either into CSV files or a SQLite database"""
 
-    def __init__(self, tsv_file, chunk_size):
+    def __init__(self, tsv_file):
         self.tsv_file = tsv_file
-        self.chunk_size = chunk_size
 
     def tsv_load(self):
-        """Load the data from the TSV file in chunks."""
-        return pd.read_csv(
-            self.tsv_file, sep="\t", chunksize=self.chunk_size, low_memory=False
-        )
+        """Load the data from the TSV file"""
+        return pd.read_csv(self.tsv_file, sep="\t", low_memory=False)
 
     def sanitise_table_name(self, table_name):
         """Converts a string to a valid table name."""
@@ -48,22 +44,15 @@ class IMDbLoader:
 
         return table_name
 
-    def df_to_csv(self, data_generator, csv_path):
+    def df_to_csv(self, data_frame, csv_path):
         """Take rows from an IMDb TSV file, clean the rows and output a CSV file"""
 
         with open(csv_path, "w", encoding="utf-8", newline="") as csv_file:
             # Read the TSV file in chunks
-            # Write the data frames to a CSV file using a writer
-            for chunk in data_generator:
-                # csv_file.tell() returns the current position in the file of the `csv_file` pointer
-                if csv_file.tell() == 0:
-                    # For the first chunk, overwrite the file and include a header
-                    chunk.to_csv(csv_file, index=False, mode="w")
-                else:
-                    # For subsequent chunks, append without writing the header
-                    chunk.to_csv(csv_file, index=False, mode="a", header=False)
+            # Write the data frame to a CSV file using a writer
+            data_frame.to_csv(csv_file, index=False, mode="w")
 
-    def df_to_sqlite(self, data_generator, db_path, db_table):
+    def df_to_sqlite(self, data_frame, db_path, db_table):
         """Take rows from an IMDb TSV file, clean the rows and output to a SQLite database"""
         db_conn = sqlite.connect(db_path)
         db_cursor = db_conn.cursor()
@@ -73,30 +62,17 @@ class IMDbLoader:
         db_cursor.execute("PRAGMA synchronous = OFF")
 
         with db_conn:
-            # Read the TSV file in chunks
+            # Read the TSV file in one go
             # Write the data frames to a SQLite table
-            for i, chunk in enumerate(data_generator):
-                if i == 0:
-                    # For the first create or replace the table
-                    chunk.to_sql(
-                        db_table,
-                        db_conn,
-                        if_exists="replace",
-                        index=False,
-                        chunksize=self.chunk_size,
-                    )
-                else:
-                    # For subsequent chunks, append without writing the header
-                    chunk.to_sql(
-                        db_table,
-                        db_conn,
-                        if_exists="append",
-                        index=False,
-                        chunksize=self.chunk_size,
-                    )
+            data_frame.to_sql(
+                db_table,
+                db_conn,
+                if_exists="replace",
+                index=False,
+            )
 
 
-def main(input_dir, output_dir, output_format, db_file, chunk_size):
+def main(input_dir, output_dir, output_format, db_file):
     """By default, read TSV files from the `import` directory, clean them up, convert them
     to CSV files and write them to the `export` directory
     Option to write to a SQLite database instead."""
@@ -105,7 +81,6 @@ def main(input_dir, output_dir, output_format, db_file, chunk_size):
         "name.basics.tsv": IMDbCleaner,
         "title.basics.tsv": TitleBasicsCleaner,
         "title.crew.tsv": TitleCrewCleaner,
-        "title.episode.tsv": TitleEpisodeCleaner,
         "title.principals.tsv": IMDbCleaner,
         "title.ratings.tsv": IMDbCleaner,
     }
@@ -133,17 +108,16 @@ def main(input_dir, output_dir, output_format, db_file, chunk_size):
         for tsv_name, cleaner_class in cleaner_classes.items():
             tsv_path = os.path.join(input_dir, tsv_name)
             # Create a generator to supply the TSV data in chunks as data frames
-            loader = IMDbLoader(tsv_file=tsv_path, chunk_size=chunk_size)
-            data_generator = loader.tsv_load()
+            loader = IMDbLoader(tsv_file=tsv_path)
             # Create a generator to supply the cleaned data frames from a class based on the file
             # names mapped in cleaner_classes
-            cleaner = cleaner_class(data_generator, tsv_name)
+            clean_df = cleaner_class(loader.tsv_load(), tsv_name).data_frame
             if output_format == "csv":
                 # If output format is csv create CSV files
                 # Define the corresponding CSV file path in the export directory
                 csv_path = os.path.join(output_dir, tsv_name.replace(".tsv", ".csv"))
                 # Write the data frames as a CSV file
-                loader.df_to_csv(data_generator=cleaner.clean_data(), csv_path=csv_path)
+                loader.df_to_csv(data_frame=clean_df, csv_path=csv_path)
             elif output_format == "sqlite":
                 # If output format is SQLite create a SQLite database
                 db_path = os.path.join(output_dir, db_file)
@@ -151,9 +125,8 @@ def main(input_dir, output_dir, output_format, db_file, chunk_size):
                 db_table = "load_" + loader.sanitise_table_name(
                     os.path.splitext(tsv_name)[0]
                 )
-                # Write the data frames to a SQLite table
                 loader.df_to_sqlite(
-                    data_generator=cleaner.clean_data(),
+                    data_frame=clean_df,
                     db_path=db_path,
                     db_table=db_table,
                 )
@@ -199,13 +172,6 @@ if __name__ == "__main__":
         default="data",
         help="Path to the output CSV file - required if output is csv (default:data)",
     )
-    parser.add_argument(
-        "-c",
-        "--chunk_size",
-        type=int,
-        default=1048576,
-        help="Block size in bytes when processing files (default: 1048576)",
-    )
     args = parser.parse_args()
 
     main(
@@ -213,5 +179,4 @@ if __name__ == "__main__":
         output_dir=args.output_dir,
         output_format=args.output_format,
         db_file=args.db_file,
-        chunk_size=args.chunk_size,
     )
