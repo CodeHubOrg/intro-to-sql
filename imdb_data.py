@@ -1,6 +1,5 @@
 """Clean non-commercial data from IMDb site and prepare for loading into a database."""
 
-import re
 import pandas as pd
 
 
@@ -35,44 +34,6 @@ class IMDbData:
             # Drop the original column and concatenate the split columns
             new_df = pd.concat([new_df.drop(column, axis=1), split_df], axis=1)
         return new_df
-
-
-class TitleBasicsData(IMDbData):
-    """Title Basics cleaner for IMDb data that filters out adult titles and non-movies"""
-
-    # title.basics.tsv.gz columns from https://developer.imdb.com/non-commercial-datasets/
-    # * tconst (string) - alphanumeric unique identifier of the title
-    # * titleType (string) – the type/format of the title (e.g. movie, short, tvseries, tvepisode,
-    #   video, etc)
-    # * primaryTitle (string) – the more popular title / the title used by the filmmakers on
-    #   promotional materials at the point of release
-    # * originalTitle (string) - original title, in the original language
-    # * isAdult (boolean) - 0: non-adult title; 1: adult title
-    # * startYear (YYYY) – represents the release year of a title. In the case of TV Series, it is
-    #   the series start year
-    # * endYear (YYYY) – TV Series end year. '\N' for all other title types
-    # * runtimeMinutes – primary runtime of the title, in minutes
-    # * genres (string array) – includes up to three genres associated with the title
-
-    DESIRED_COLUMNS = [
-        "tconst",
-        "primaryTitle",
-        "originalTitle",
-        "startYear",
-        "runtimeMinutes",
-        "genres",
-        "isAdult",
-    ]
-
-    def clean_data(self, input_df):
-        """Filter out rows where 'isAdult' is 1 and keep rows where 'titleType' is 'movie'
-        Keep only desired columns"""
-        # TODO: Filter out adult titles - not working for some reason
-        filtered_df = input_df.loc[input_df["titleType"] == "movie"]
-        # appropriate_df = filtered_df.loc[filtered_df["isAdult"] == 0]
-        # subset_df = filtered_df[self.DESIRED_COLUMNS]
-
-        return self.replace_null(filtered_df)
 
 
 class TitleCrewData(IMDbData):

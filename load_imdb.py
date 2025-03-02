@@ -17,6 +17,7 @@ from tqdm import tqdm
 #     TitleCrewData,
 # )
 from name_basics_data import NameBasicsData
+from title_basics_data import TitleBasicsData
 
 
 class IMDbLoader:
@@ -64,7 +65,7 @@ def main(input_dir, output_dir, output_format, db_file):
 
     cleaner_classes = {
         "name.basics.tsv": NameBasicsData,
-        # "title.basics.tsv": TitleBasicsData,
+        "title.basics.tsv": TitleBasicsData,
         # "title.crew.tsv": TitleCrewData,
         # "title.principals.tsv": IMDbData,
         # "title.ratings.tsv": IMDbData,
