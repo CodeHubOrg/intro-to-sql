@@ -1,6 +1,5 @@
 """Clean non-commercial data from IMDb site and prepare for loading into a database."""
 
-import re
 import pandas as pd
 
 
