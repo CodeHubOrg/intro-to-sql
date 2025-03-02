@@ -1,15 +1,16 @@
 """Clean non-commercial data from IMDb site and prepare for loading into a database."""
 
+import re
 import pandas as pd
 
 
 class IMDbData:
     """Base class for cleaning and storing IMDb data"""
 
-    def __init__(self, init_df, tsv_name):
-        # Clean the data and load it into a DataFrame
-        self.data_frame = self.clean_data(init_d)
-        self.tsv_name = tsv_name
+    def __init__(self, init_df, df_name):
+        # Clean the data and load it into a DataFrame stored in a dictionary
+        self.data_frames = {}
+        self.data_frames[df_name] = self.clean_data(init_df)
 
     def replace_null(self, input_df):
         """Function to replace '\\N' which IMDb uses for null values with an empty string"""
@@ -33,7 +34,6 @@ class IMDbData:
             split_df = self.split_column(new_df, column)
             # Drop the original column and concatenate the split columns
             new_df = pd.concat([new_df.drop(column, axis=1), split_df], axis=1)
-            print(new_df.head())
         return new_df
 
 
@@ -69,10 +69,10 @@ class TitleBasicsData(IMDbData):
         Keep only desired columns"""
         # TODO: Filter out adult titles - not working for some reason
         filtered_df = input_df.loc[input_df["titleType"] == "movie"]
-        appropriate_df = filtered_df.loc[filtered_df["isAdult"] == 0]
-        subset_df = appropriate_df[self.DESIRED_COLUMNS]
+        # appropriate_df = filtered_df.loc[filtered_df["isAdult"] == 0]
+        # subset_df = filtered_df[self.DESIRED_COLUMNS]
 
-        return self.replace_null(subset_df)
+        return self.replace_null(filtered_df)
 
 
 class TitleCrewData(IMDbData):

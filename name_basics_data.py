@@ -16,10 +16,10 @@ class NameBasicsData(IMDbData):
     # primaryProfession (array of strings)– the top-3 professions of the person
     # knownForTitles (array of tconst values) – titles the person is known for
 
-    def __init__(self, init_df, tsv_name):
-        super().__init__(init_df, tsv_name)
+    def __init__(self, init_df):
+        df_name = "name_basics"
+        super().__init__(init_df, df_name)
         # Clean the data and load it into a DataFrame
-        self.data_frame = self.split_columns(
-            self.data_frame, ["primaryProfession", "knownForTitles"]
+        self.data_frames[df_name] = self.split_columns(
+            self.data_frames[df_name], ["primaryProfession", "knownForTitles"]
         )
-        self.tsv_name = tsv_name

@@ -7,7 +7,6 @@
 
 import os
 import argparse
-import re
 import sqlite3 as sqlite
 import pandas as pd
 from tqdm import tqdm
@@ -29,22 +28,6 @@ class IMDbLoader:
     def tsv_load(self):
         """Load the data from the TSV file"""
         return pd.read_csv(self.tsv_file, sep="\t", low_memory=False)
-
-    def sanitise_table_name(self, table_name):
-        """Converts a string to a valid table name."""
-        # From Claude Haiku
-        # Remove special characters and spaces
-        table_name = re.sub(r"[^a-zA-Z0-9_]", "_", table_name)
-
-        # Convert to lowercase
-        table_name = table_name.lower()
-
-        # Truncate the name if necessary
-        max_length = 63  # Maximum table name length in SQLite
-        if len(table_name) > max_length:
-            table_name = table_name[:max_length]
-
-        return table_name
 
     def df_to_csv(self, data_frame, csv_path):
         """Take rows from an IMDb TSV file, clean the rows and output a CSV file"""
@@ -111,27 +94,22 @@ def main(input_dir, output_dir, output_format, db_file):
             tsv_path = os.path.join(input_dir, tsv_name)
             # Create a generator to supply the TSV data in chunks as data frames
             loader = IMDbLoader(tsv_file=tsv_path)
-            # Create a generator to supply the cleaned data frames from a class based on the file
-            # names mapped in cleaner_classes
-            clean_df = cleaner_class(loader.tsv_load(), tsv_name).data_frame
-            if output_format == "csv":
-                # If output format is csv create CSV files
-                # Define the corresponding CSV file path in the export directory
-                csv_path = os.path.join(output_dir, tsv_name.replace(".tsv", ".csv"))
-                # Write the data frames as a CSV file
-                loader.df_to_csv(data_frame=clean_df, csv_path=csv_path)
-            elif output_format == "sqlite":
-                # If output format is SQLite create a SQLite database
-                db_path = os.path.join(output_dir, db_file)
-                # Define the corresponding table name in the SQLite database
-                db_table = "load_" + loader.sanitise_table_name(
-                    os.path.splitext(tsv_name)[0]
-                )
-                loader.df_to_sqlite(
-                    data_frame=clean_df,
-                    db_path=db_path,
-                    db_table=db_table,
-                )
+            cleaner = cleaner_class(loader.tsv_load())
+            for df_name, clean_df in cleaner.data_frames.items():
+                if output_format == "csv":
+                    # If output format is csv create CSV files
+                    # Define the corresponding CSV file path in the export directory
+                    csv_path = os.path.join(output_dir, df_name, ".csv")
+                    # Write the data frames as a CSV file
+                    loader.df_to_csv(data_frame=clean_df, csv_path=csv_path)
+                elif output_format == "sqlite":
+                    # If output format is SQLite create a SQLite database
+                    db_path = os.path.join(output_dir, db_file)
+                    loader.df_to_sqlite(
+                        data_frame=clean_df,
+                        db_path=db_path,
+                        db_table=df_name,
+                    )
 
             files_progress.update(1)
 
