@@ -1,12 +1,14 @@
-"""Clean generic data from IMDb site"""
+"""Clean non-commercial data from IMDb site and prepare for loading into a database."""
+
+import pandas as pd
 
 
-class IMDbCleaner:
-    """Base cleaner for IMDb data"""
+class IMDbData:
+    """Base class for cleaning and storing IMDb data"""
 
-    def __init__(self, data_frame, tsv_name):
+    def __init__(self, init_df, tsv_name):
         # Clean the data and load it into a DataFrame
-        self.data_frame = self.clean_data(data_frame)
+        self.data_frame = self.clean_data(init_d)
         self.tsv_name = tsv_name
 
     def replace_null(self, input_df):
@@ -17,8 +19,25 @@ class IMDbCleaner:
         """Clean the data."""
         return self.replace_null(input_df)
 
+    def split_column(self, input_df, column_name):
+        """Split column that contain multiple values separated by commas"""
+        split_df = input_df[column_name].str.split(",", expand=True)
+        # Prefix the column names with the original column name
+        return split_df.add_prefix(column_name + "_")
 
-class TitleBasicsCleaner(IMDbCleaner):
+    def split_columns(self, input_df, columns):
+        """Split multiple columns that contain multiple values separated by commas"""
+        new_df = input_df
+        for column in columns:
+            # Split the column
+            split_df = self.split_column(new_df, column)
+            # Drop the original column and concatenate the split columns
+            new_df = pd.concat([new_df.drop(column, axis=1), split_df], axis=1)
+            print(new_df.head())
+        return new_df
+
+
+class TitleBasicsData(IMDbData):
     """Title Basics cleaner for IMDb data that filters out adult titles and non-movies"""
 
     # title.basics.tsv.gz columns from https://developer.imdb.com/non-commercial-datasets/
@@ -48,14 +67,15 @@ class TitleBasicsCleaner(IMDbCleaner):
     def clean_data(self, input_df):
         """Filter out rows where 'isAdult' is 1 and keep rows where 'titleType' is 'movie'
         Keep only desired columns"""
+        # TODO: Filter out adult titles - not working for some reason
         filtered_df = input_df.loc[input_df["titleType"] == "movie"]
-        # appropriate_df = filtered_df.loc[filtered_df["isAdult"] == 0]
-        # subset_df = filtered_df[self.DESIRED_COLUMNS]
+        appropriate_df = filtered_df.loc[filtered_df["isAdult"] == 0]
+        subset_df = appropriate_df[self.DESIRED_COLUMNS]
 
-        return self.replace_null(filtered_df)
+        return self.replace_null(subset_df)
 
 
-class TitleCrewCleaner(IMDbCleaner):
+class TitleCrewData(IMDbData):
     """Title crew cleaner for IMDb data that filters out rows with no writer or director"""
 
     # title.crew.tsv.gz columns from https://developer.imdb.com/non-commercial-datasets/

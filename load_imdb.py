@@ -11,11 +11,13 @@ import re
 import sqlite3 as sqlite
 import pandas as pd
 from tqdm import tqdm
-from imdb_cleaner import (
-    IMDbCleaner,
-    TitleBasicsCleaner,
-    TitleCrewCleaner,
-)
+
+# from imdb_data import (
+#     IMDbData,
+#     TitleBasicsData,
+#     TitleCrewData,
+# )
+from name_basics_data import NameBasicsData
 
 
 class IMDbLoader:
@@ -78,11 +80,11 @@ def main(input_dir, output_dir, output_format, db_file):
     Option to write to a SQLite database instead."""
 
     cleaner_classes = {
-        "name.basics.tsv": IMDbCleaner,
-        "title.basics.tsv": TitleBasicsCleaner,
-        "title.crew.tsv": TitleCrewCleaner,
-        "title.principals.tsv": IMDbCleaner,
-        "title.ratings.tsv": IMDbCleaner,
+        "name.basics.tsv": NameBasicsData,
+        # "title.basics.tsv": TitleBasicsData,
+        # "title.crew.tsv": TitleCrewData,
+        # "title.principals.tsv": IMDbData,
+        # "title.ratings.tsv": IMDbData,
     }
 
     # Create the export directory if it doesn't exist
