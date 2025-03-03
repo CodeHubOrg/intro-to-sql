@@ -26,18 +26,13 @@ class NameBasicsData(IMDbData):
         ]
         # Assign an index to the DataFrame
         self.data_frames[df_name].set_index("nconst", inplace=True)
-        # Explode one compound columns and store as a new table. The other compound column is split
-        # into multiple columns
+        # Explode one compound columns and store as a new table.
+        self.data_frames["known_for_titles"] = self.explode_columns(
+            self.data_frames[df_name], "knownForTitles"
+        )
+        # The other compound column is split into multiple columns
         self.data_frames[df_name] = self.split_columns(
             self.data_frames[df_name], ["primaryProfession"]
         )
-        # Convert knownForTitles to a column of lists
-        self.data_frames[df_name]["knownForTitles"] = self.data_frames[df_name][
-            "knownForTitles"
-        ].str.split(",")
-        # Explode the knownForTitles column into a new data-frame and drop the other columns
-        known_for_titles = self.data_frames[df_name].explode("knownForTitles")
-        known_for_titles = known_for_titles["knownForTitles"]
         # Drop the knownForTitles column from the name_basics data-frame
         self.data_frames[df_name] = self.data_frames[df_name][self.desired_columns]
-        self.data_frames["known_for_titles"] = known_for_titles
