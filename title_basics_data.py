@@ -23,19 +23,23 @@ class TitleBasicsData(IMDbData):
 
     def __init__(self, init_df):
         df_name = "title_basics"
+        super().__init__(init_df, df_name)
         self.desired_columns = [
-            "tconst",
             "primaryTitle",
             "originalTitle",
             "startYear",
             "runtimeMinutes",
-            "genres",
         ]
-        super().__init__(init_df, df_name)
-        # Clean the data and load it into a DataFrame
-        self.data_frames[df_name] = self.split_columns(
-            self.data_frames[df_name], ["genres"]
-        )
+        # Assign an index to the DataFrame
+        self.data_frames[df_name].set_index("tconst", inplace=True)
+        # Split out the genres column into a separate dataframe
+        self.data_frames[df_name]["genres"] = self.data_frames[df_name][
+            "genres"
+        ].str.split(",")
+        title_genres = self.data_frames[df_name].explode("genres")
+        title_genres = title_genres["genres"]
+        self.data_frames[df_name] = self.data_frames[df_name][self.desired_columns]
+        self.data_frames["title_genres"] = title_genres
 
     def clean_data(self, input_df):
         """Filter out rows where 'isAdult' is 1 and keep rows where 'titleType' is 'movie'
@@ -43,6 +47,5 @@ class TitleBasicsData(IMDbData):
         filtered_df = input_df[input_df.titleType == "movie"]
         print(filtered_df["isAdult"].value_counts())
         appropriate_df = filtered_df[filtered_df["isAdult"] == "0"]
-        subset_df = appropriate_df[self.desired_columns]
 
-        return self.replace_null(subset_df)
+        return self.replace_null(appropriate_df)
