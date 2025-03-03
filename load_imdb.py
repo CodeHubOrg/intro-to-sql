@@ -19,6 +19,7 @@ from tqdm import tqdm
 from name_basics_data import NameBasicsData
 from title_basics_data import TitleBasicsData
 from title_crew_data import TitleCrewData
+from title_ratings_data import TitleRatingsData
 
 
 class IMDbLoader:
@@ -68,7 +69,7 @@ def main(input_dir, output_dir, output_format, db_file):
         "title.basics.tsv": TitleBasicsData,
         "title.crew.tsv": TitleCrewData,
         # "title.principals.tsv": IMDbData,
-        # "title.ratings.tsv": IMDbData,
+        "title.ratings.tsv": TitleRatingsData,
     }
 
     # Create the export directory if it doesn't exist

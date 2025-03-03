@@ -42,7 +42,8 @@ class IMDbData:
         input_df[column_name] = input_df[column_name].str.split(",")
         # Explode the list of values into separate rows in a new data-frame
         exploded_df = input_df.explode(column_name)
-        # Select only the column that was exploded, filter empty rows and convert it into a data-frame
+        # Select only the column that was exploded, filter empty rows and convert it into a
+        # data-frame
         filtered_series = exploded_df[column_name].dropna()
         filtered_df = filtered_series.to_frame(name=column_name)
 

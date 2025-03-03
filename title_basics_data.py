@@ -1,4 +1,4 @@
-"""Clean non-commercial data from names.basics.tsv from IMDb site and prepare for loading into a
+"""Clean non-commercial data from title.basics.tsv from IMDb site and prepare for loading into a
 database."""
 
 from imdb_data import IMDbData
