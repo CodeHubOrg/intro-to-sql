@@ -54,7 +54,6 @@ class IMDbLoader:
                 db_table,
                 db_conn,
                 if_exists="replace",
-                index=False,
             )
 
 
