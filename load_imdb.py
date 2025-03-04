@@ -65,11 +65,11 @@ def main(input_dir, output_dir, output_format, db_file):
     Option to write to a SQLite database instead."""
 
     cleaner_classes = {
-        "name.basics.tsv": NameBasicsData,
         "title.basics.tsv": TitleBasicsData,
-        "title.crew.tsv": TitleCrewData,
-        # "title.principals.tsv": IMDbData,
         "title.ratings.tsv": TitleRatingsData,
+        "title.crew.tsv": TitleCrewData,
+        "name.basics.tsv": NameBasicsData,
+        # "title.principals.tsv": IMDbData,
     }
 
     # Create the export directory if it doesn't exist
