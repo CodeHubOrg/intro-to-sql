@@ -1,5 +1,5 @@
 {
-  "name": "Python & Poetry Development Environment",
+  "name": "Decodering: Intro to SQL Environment",
   "image": "mcr.microsoft.com/devcontainers/python:latest",
   "features": {
     "git-lfs": "latest"
