@@ -1,4 +1,4 @@
-# The first target in the Justfile is the default target, which I call 
+# The first target in the Justfile is the default target, which I call
 # "default". This target is executed when you run `just` without any
 # arguments. In this case, the default target is a help message that
 # lists the available targets and their descriptions.
@@ -14,11 +14,8 @@ import_dir := "import"
 # re-download the files.)
 fetch:
     make import/name.basics.tsv \
-        import/title.akas.tsv \
         import/title.basics.tsv \
         import/title.crew.tsv \
-        import/title.episode.tsv \
-        import/title.principals.tsv \
         import/title.ratings.tsv
 
 # Remove all the artefacts, including the expensive downloads.

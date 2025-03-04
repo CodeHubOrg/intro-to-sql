@@ -10,7 +10,6 @@ from tqdm import tqdm
 SETTINGS = {
     "data_files": {
         "name.basics.tsv.gz",
-        "title.akas.tsv.gz",
         "title.basics.tsv.gz",
         "title.crew.tsv.gz",
         "title.episode.tsv.gz",
