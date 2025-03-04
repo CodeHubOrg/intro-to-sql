@@ -1,9 +1,9 @@
 !# /usr/bin/bash
 echo "Updating and upgrading Ubuntu packages"
-apt-get update
-apt-get upgrade -y
+sudo apt-get update
+sudo apt-get upgrade -y
 echo "Installing build-essential, wget, gzip, and pipx Ubuntu packages"
-apt-get install -y build-essential wget gzip pipx
+sudo apt-get install -y build-essential wget gzip pipx
 pipx ensurepath
 echo "Installing poetry and rust-just pipx packages"
 pipx install poetry rust-just
