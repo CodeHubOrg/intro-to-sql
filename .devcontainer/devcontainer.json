@@ -12,13 +12,15 @@
         "ms-python.python",
         "ms-python.vscode-pylance",
         "editorconfig.editorconfig",
-        "ms-azuretools.vscode-docker"
+        "ms-azuretools.vscode-docker",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-sqlite"
       ],
       "settings": {
         "python.pythonPath": "/usr/local/bin/python"
       }
     }
   },
-  "postCreateCommand": "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential wget gzip",
+  "postCreateCommand": "./.devcontainer/setup.sh",
   "remoteUser": "vscode"
 }
