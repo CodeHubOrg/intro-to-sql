@@ -16,4 +16,4 @@ poetry install
 # Install the node.js modules for SQLTools
 npm install
 # git lfs pull
-gunzip -q /workspaces/intro-to-sql/prebuilt/imdb.sqlite.gz
+gunzip -k -q /workspaces/intro-to-sql/prebuilt/imdb.sqlite.gz
