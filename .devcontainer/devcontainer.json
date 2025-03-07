@@ -4,7 +4,7 @@
   "features": {
     "ghcr.io/devcontainers/features/node:1": {},
     "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
-      "packages": "build-essential,wget,gzip,git-lfs,pipx"
+      "packages": "build-essential,wget,gzip,git-lfs,sqlite3,pipx"
     }
   },
   "customizations": {
