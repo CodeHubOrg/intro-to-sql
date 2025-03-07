@@ -13,7 +13,5 @@ pipx install poetry rust-just
 echo "Using poetry to create a virtual environment"
 # Install the python environment used for building the database
 poetry install
-# Install the node.js modules for SQLTools
-npm install sqlite3@5.1.7
 # git lfs pull
 gunzip -k -q /workspaces/intro-to-sql/prebuilt/imdb.sqlite.gz
