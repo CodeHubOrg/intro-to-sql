@@ -12,6 +12,7 @@ import/
 *.tsv
 
 node_modules/
+package.json
 package-lock.json
 
 *.sqlite
