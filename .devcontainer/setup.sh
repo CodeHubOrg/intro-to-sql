@@ -11,7 +11,9 @@ pipx ensurepath
 echo "Installing poetry and rust-just pipx packages"
 pipx install poetry rust-just
 echo "Using poetry to create a virtual environment"
+# Install the python environment used for building the database
 poetry install
-npm install sqlite3@5.1.7
+# Install the node.js modules for SQLTools
+npm install
 # git lfs pull
 gunzip -q /workspaces/intro-to-sql/prebuilt/imdb.sqlite.gz
