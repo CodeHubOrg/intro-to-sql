@@ -12,6 +12,8 @@ import/
 *.csv
 *.tsv
 
-db/
-sql/
-*.sql
+node_modules/
+package.json
+package-lock.json
+
+*.sqlite
