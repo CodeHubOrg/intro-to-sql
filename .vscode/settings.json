@@ -7,5 +7,6 @@
             "group": "Intro to SQL",
             "database": "/workspaces/intro-to_sql/prebuilt/imdb.sqlite"
         }
-    ]
+    ],
+    "sqltools.useNodeRuntime": true
 }
