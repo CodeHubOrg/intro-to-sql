@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "IMDb",
+            "group": "Intro to SQL",
+            "database": "/workspaces/intro-to_sql/prebuilt/imdb.sqlite"
+        }
+    ]
+}
