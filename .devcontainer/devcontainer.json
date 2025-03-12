@@ -12,7 +12,8 @@
         "editorconfig.editorconfig",
         "ms-azuretools.vscode-docker",
         "mtxr.sqltools",
-        "mtxr.sqltools-driver-sqlite"
+        "mtxr.sqltools-driver-sqlite",
+        "bierner.markdown-mermaid"
       ],
       "settings": {
         "python.pythonPath": "/usr/local/bin/python"
