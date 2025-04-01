@@ -4,8 +4,14 @@
             "previewLimit": 50,
             "driver": "SQLite",
             "name": "IMDb",
-            "group": "Intro to SQL",
-            "database": "/workspaces/intro-to_sql/prebuilt/imdb.sqlite"
+            "group": "Introduction to SQL",
+            "database": "${workspaceFolder:intro-to-sql}/prebuilt/imdb.sqlite"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "IMDb new",
+            "database": "${workspaceFolder:intro-to-sql}/prebuilt/imdb.sqlite"
         }
     ],
     "sqltools.useNodeRuntime": true
