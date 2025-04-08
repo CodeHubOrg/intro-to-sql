@@ -1,7 +1,6 @@
 .venv/
 __pycache__/
 
-.vscode/
 *.code-workspace
 cspell.json
 .cspell/
@@ -12,6 +11,8 @@ import/
 *.csv
 *.tsv
 
-db/
-sql/
-*.sql
+node_modules/
+package.json
+package-lock.json
+
+*.sqlite

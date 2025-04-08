@@ -1,8 +1,11 @@
 {
-  "name": "Python & Poetry Development Environment",
+  "name": "Decodering: Intro to SQL Environment",
   "image": "mcr.microsoft.com/devcontainers/python:latest",
   "features": {
-    "git-lfs": "latest"
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+      "packages": "build-essential,wget,gzip,git-lfs,sqlite3,pipx"
+    }
   },
   "customizations": {
     "vscode": {
