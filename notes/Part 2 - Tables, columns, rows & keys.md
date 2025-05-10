@@ -1,12 +1,6 @@
-# Intro to SQL - Part 2
+# Intro to SQL Part 2 - Tables, columns, rows & keys
 
-**CodeHub Decodering**
-
-*James Rennison*
-
-## Tables, columns, rows & keys
-
-***Building a simple database***
+## Building a simple database
 
 ### Tables
 
@@ -36,14 +30,14 @@ CREATE TABLE <table_1> (
 
 * One or more columns are the primary key
 * Columns have a data type:
-  - Numbers (integer, float & more)
-  - Strings (char, varchar & more)
-  - Dates, times, Time Stamps
-  - Boolean values
-  - Enumerated lists
+  * Numbers (integer, float & more)
+  * Strings (char, varchar & more)
+  * Dates, times, Time Stamps
+  * Boolean values
+  * Enumerated lists
 * Modern RDMS often support more exotic data types:
-  - Large data (Blobs, Clobs)
-  - Documents (JSON)
+  * Large data (Blobs, Clobs)
+  * Documents (JSON)
 * Columns can be null and have a default
 * Primary keys must be unique
 * Other columns can have constraints
@@ -53,6 +47,19 @@ CREATE TABLE <table_1> (
 * Null is a special value used extensively in databases
 * It is the absence of a value, rather than an empty string or zero
 * It has special tests in SQL and surprising effects: NULL != NULL
+* Columns can have a default value
+
+``` sql
+CREATE TABLE <table_1> (
+    <column_1>  INT             NOT NULL,
+    <column_2>  DATE            NOT NULL,
+    <column_3>  VARCHAR(14)     NOT NULL,
+    PRIMARY KEY (<column_1>)
+);
+```
+
+
+## Linking tables
 
 ### Tables can have explicit relationships
 
@@ -89,6 +96,7 @@ CREATE TABLE <table_3> (
     PRIMARY KEY (<column_1>)
 );
 ```
+
 ```sql
 CREATE TABLE <table_join> (
     <column_1>  INT         NOT NULL,

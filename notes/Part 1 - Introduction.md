@@ -29,4 +29,3 @@
 * Storing irregular data
 * Flexible or no schema
 * Cost…
-
