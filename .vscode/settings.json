@@ -15,5 +15,4 @@
     }
   ],
   "sqltools.useNodeRuntime": true,
-  "cSpell.words": ["VARCHAR"]
-}
+  "cSpell.words": ["VARCHAR", "Decodering"]
