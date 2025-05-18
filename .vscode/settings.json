@@ -6,13 +6,10 @@
       "name": "IMDb",
       "group": "Introduction to SQL",
       "database": "${workspaceFolder:intro-to-sql}/prebuilt/imdb.sqlite"
-    },
-    {
-      "previewLimit": 50,
-      "driver": "SQLite",
-      "name": "IMDb new",
-      "database": "${workspaceFolder:intro-to-sql}/prebuilt/imdb.sqlite"
     }
   ],
   "sqltools.useNodeRuntime": true,
-  "cSpell.words": ["VARCHAR", "Decodering"]
+  "cSpell.words": ["VARCHAR", "Decodering"],
+  "cSpell.language": "en-GB",
+  "files.eol": "\n"
+}
