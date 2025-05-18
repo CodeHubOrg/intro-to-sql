@@ -14,3 +14,21 @@ VALUES
 * You should match data types for columns - you can explicitly cast data types but results can be
 unpredictable with some DBMS
 * You must specify a value for any column that doesn't allow NULL values or has a default defined
+
+### SQL: update table rows
+
+```sql
+UPDATE table_1
+SET
+    column_1=value_1,
+    column_2=value_2
+WHERE…
+```
+
+### SQL: Delete table rows
+
+```sql
+DELETE
+FROM table_1
+WHERE…
+```
